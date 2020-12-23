@@ -1,0 +1,9 @@
+<launch>
+
+    <arg name="debug_directory" value="$(env HELLO_FLEET_PATH)/debug/"/>
+
+    <node name="aruco_button" pkg="stretch_demos" type="aruco_button" output="screen">
+        <param name="debug_directory" type="string" value="$(arg debug_directory)"/>
+    </node>
+
+</launch>
