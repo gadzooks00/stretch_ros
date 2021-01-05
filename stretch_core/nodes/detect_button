@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import sys
+import rospy
+import cv2
+import numpy as np
+import math
+
+import message_filters
+from std_msgs.msg import Header
+from sensor_msgs.msg import Image
+from sensor_msgs.msg import CameraInfo
+from sensor_msgs import point_cloud2
+from sensor_msgs.msg import PointCloud2, PointField
+from visualization_msgs.msg import Marker
+from visualization_msgs.msg import MarkerArray
+from geometry_msgs.msg import Point
+
+from cv_bridge import CvBridge, CvBridgeError
+
+import tf
+from tf.transformations import quaternion_from_euler, euler_from_quaternion, quaternion_from_matrix
+
+import struct
+import cv2.aruco as aruco
+import hello_helpers.fit_plane as fp
+import threading
+from collections import deque
+
+import hello_helpers.hello_misc as hm
+
+import time
+class ArucoDetectionNode(hm.HelloNode):
+
+    def __init__(self):
+        self.markerarray = None
+        hm.HelloNode.__init__(self)
+        
+    def perform_head_scan(self, fill_in_blindspot_with_second_scan=True, localize_only=False, global_localization=False, fast_scan=False):
+        node = self
+
+        running = True
+
+        trigger_request = TriggerRequest() 
+        trigger_result = self.trigger_d435i_high_accuracy_mode_service(trigger_request)
+        rospy.loginfo('trigger_result = {0}'.format(trigger_result))
+            
+        # Reduce the occlusion due to the arm and grabber. This is
+        # intended to be run when the standard grabber is not holding
+        # an object.
+        ma.stow_and_lower_arm(node)
+
+        # Create and perform a new full scan of the environment using
+        # the head.
+
+        while (running):
+            head_scan = ma.HeadScan(voi_side_m=16.0)
+            rospy.sleep(2)
+
+
+    def align_to_surface(self):
+        trigger_result = self.trigger_align_with_nearest_cliff_service(trigger_request)
+        rospy.loginfo('trigger_result = {0}'.format(trigger_result))
+
+    def trigger_write_marker_callback(self, markeyarray):
+        # move the base with FUNMAP server thing and then line up
+        #self.markerarray = MarkerArray
+        #rospy.loginfo(self.markerarray.pose)
+        id = self.markerarray
+        print(id)
+        print("hello")
+        # pose = {'translate_mobile_base': length_m}
+        # self.move_to_pose(pose)
+        # self.align_to_surface()
+    
+    def main(self):  
+        rospy.init_node('ArucoDetectionNode')
+        self.node_name = rospy.get_name() 
+        self.marker_array_subscriber = rospy.Subscriber('/aruco/marker_array', MarkerArray, self.trigger_write_marker_callback)
+        # self.axes_subscriber = rospy.Subscriber('/aruco/axes', )
+        # self.point_cloud2_subscriber = rospy.Subscriber('/aruco/point_cloud2')
+        # self.wrist_top_subscriber = rospy.Subscriber('/aruco/wrist_top')
+        # self.wrist_inside_subscriber = rospy.Subscriber('/aruco/wrist_inside')
+
+if __name__ == '__main__':
+    node = ArucoDetectionNode()
+    node.main()
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print('interrupt received, so shutting down')
+    cv2.destroyAllWindows()

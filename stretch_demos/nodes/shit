@@ -36,7 +36,7 @@ class HelloWorldNode(hm.HelloNode):
         self.joint_states = None
         self.joint_states_lock = threading.Lock()
         self.move_base = nv.MoveBase(self)
-        self.letter_height_m = 0.1
+        self.letter_height_m = 0.05
         self.letter_top_lift_m = 1.08 #1.05
         
     def joint_states_callback(self, joint_states):
@@ -116,7 +116,7 @@ class HelloWorldNode(hm.HelloNode):
             rospy.loginfo('horizontal_line moving right')
         else:
             rospy.loginfo('horizontal_line moving left')
-        length_m = self.letter_height_m / 2.0
+        length_m = self.letter_height_m 
         if half:
             length_m = length_m / 2.0
         if move_right:
@@ -135,7 +135,7 @@ class HelloWorldNode(hm.HelloNode):
     def space(self):
         rospy.loginfo('space')
         self.align_to_surface()
-        self.horizontal_line(move_right=True, half=True)
+        self.horizontal_line(move_right=True)
 
 
     def move_arm_out_of_the_way(self):
@@ -159,19 +159,17 @@ class HelloWorldNode(hm.HelloNode):
         rospy.loginfo('position_one')
         self.align_to_surface()
         self.vertical_line(move_down=True)
-        self.vertical_line(move_down=True, half=True)
         self.pen_down()
-        rospy.sleep(5)
+        rospy.sleep(1)
         self.pen_up()
-        self.vertical_line(move_down=False)
-        self.vertical_line(move_down=False, half=True)
+
 
     def position_two(self):
         rospy.loginfo('position_two')
         self.align_to_surface()
         self.vertical_line(move_down=True)
         self.pen_down()
-        rospy.sleep(5)
+        rospy.sleep(1)
         self.pen_up()
                 
     def trigger_write_hello_callback(self, request):
@@ -184,6 +182,7 @@ class HelloWorldNode(hm.HelloNode):
         
         
         self.position_one()
+        self.space()
         self.position_two()
 
         return TriggerResponse(
