@@ -64,13 +64,14 @@ class ArucoDetectionNode(hm.HelloNode):
         trigger_result = self.trigger_align_with_nearest_cliff_service(trigger_request)
         rospy.loginfo('trigger_result = {0}'.format(trigger_result))
 
-    def trigger_write_marker_callback(self, markeyarray):
+    def trigger_write_marker_callback(self, markerarray):
         # move the base with FUNMAP server thing and then line up
         #self.markerarray = MarkerArray
         #rospy.loginfo(self.markerarray.pose)
-        id = self.markerarray
-        print(id)
-        print("hello")
+        
+        for marker in markerarray.markers:
+            rospy.loginfo(marker.id)
+            rospy.loginfo(marker.pose.position.x)
         # pose = {'translate_mobile_base': length_m}
         # self.move_to_pose(pose)
         # self.align_to_surface()
@@ -79,6 +80,7 @@ class ArucoDetectionNode(hm.HelloNode):
         rospy.init_node('ArucoDetectionNode')
         self.node_name = rospy.get_name() 
         self.marker_array_subscriber = rospy.Subscriber('/aruco/marker_array', MarkerArray, self.trigger_write_marker_callback)
+        # self.marker_array_publisher = rospy.Publisher('/aruco')
         # self.axes_subscriber = rospy.Subscriber('/aruco/axes', )
         # self.point_cloud2_subscriber = rospy.Subscriber('/aruco/point_cloud2')
         # self.wrist_top_subscriber = rospy.Subscriber('/aruco/wrist_top')
