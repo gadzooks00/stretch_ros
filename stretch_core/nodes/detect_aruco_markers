@@ -682,7 +682,10 @@ class DetectArucoNode:
     def main(self):
         rospy.init_node('DetectArucoNode')
         self.node_name = rospy.get_name()
-        rospy.loginfo("{0} started".format(self.node_name))trigger_write_hello_callback
+        rospy.loginfo("{0} started".format(self.node_name))
+        
+        self.marker_info = rospy.get_param('/aruco_marker_info')
+        self.aruco_marker_collection = ArucoMarkerCollection(self.marker_info)
 
         self.rgb_topic_name = '/camera/color/image_raw' #'/camera/infra1/image_rect_raw'
         self.rgb_image_subscriber = message_filters.Subscriber(self.rgb_topic_name, Image)
