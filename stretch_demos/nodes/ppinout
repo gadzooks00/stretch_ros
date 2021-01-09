@@ -23,12 +23,23 @@ import sys
 import tf2_ros
 import argparse as ap        
 
+import message_filters
+from std_msgs.msg import Header
+from sensor_msgs.msg import Image
+from sensor_msgs.msg import CameraInfo
+from sensor_msgs import point_cloud2
+from sensor_msgs.msg import PointCloud2, PointField
+from visualization_msgs.msg import Marker
+from visualization_msgs.msg import MarkerArray
+from geometry_msgs.msg import Point
+
 import hello_helpers.hello_misc as hm
 import stretch_funmap.navigate as nv
 
 
 
 class HelloWorldNode(hm.HelloNode):
+    
 
     def __init__(self):
         hm.HelloNode.__init__(self)
@@ -71,7 +82,7 @@ class HelloWorldNode(hm.HelloNode):
             wrist_position, wrist_velocity, wrist_effort = hm.get_wrist_state(self.joint_states)
         extension_m = wrist_position + max_reach_m
         extension_m = min(extension_m, max_extension_m)
-        extension_contact_effort = 120.0 #42.0 #40.0 from funmap
+        extension_contact_effort = 65.0 #42.0 #40.0 from funmap
         pose = {'wrist_extension': (extension_m, extension_contact_effort)}
         self.move_to_pose(pose, custom_contact_thresholds=True)
         
@@ -177,11 +188,10 @@ class HelloWorldNode(hm.HelloNode):
     def trigger_write_hello_callback(self, request):
 
         #self.move_arm_out_of_the_way()
-
+        print("Worked")
         self.move_to_initial_configuration()
 
         self.align_to_surface()
-        
         
         self.pen_down()
         rospy.sleep(5)
@@ -194,8 +204,13 @@ class HelloWorldNode(hm.HelloNode):
             success=True,
             message='Completed writing hello!'
             )
-
     
+    #def trigger_write_marker_callback(self, markerarray):
+
+        #for marker in markerarray.markers:
+        #    x = marker.id
+        #    print(x)
+
     def main(self):
         hm.HelloNode.main(self, 'hello_world', 'hello_world', wait_for_first_pointcloud=False)
 
@@ -204,10 +219,11 @@ class HelloWorldNode(hm.HelloNode):
         self.trigger_write_hello_service = rospy.Service('/hello_world/trigger_write_hello',
                                                          Trigger,
                                                          self.trigger_write_hello_callback)
-        
+        #self.marker_array_subscriber = rospy.Subscriber('/aruco/marker_array', MarkerArray, self.trigger_write_marker_callback)
+
         rospy.wait_for_service('/funmap/trigger_align_with_nearest_cliff')
         rospy.loginfo('Node ' + self.node_name + ' connected to /funmap/trigger_align_with_nearest_cliff.')
-        self.trigger_align_with_nearest_cliff_service = rospy.ServiceProxy('/funmap/trigger_align_with_nearest_cliff', Trigger)
+        #self.trigger_align_with_nearest_cliff_service = rospy.ServiceProxy('/funmap/trigger_align_with_nearest_cliff', Trigger)
 
         rospy.wait_for_service('/funmap/trigger_reach_until_contact')
         rospy.loginfo('Node ' + self.node_name + ' connected to /funmap/trigger_reach_until_contact.')

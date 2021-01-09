@@ -26,6 +26,16 @@ import argparse as ap
 import hello_helpers.hello_misc as hm
 import stretch_funmap.navigate as nv
 
+from std_msgs.msg import Int16
+import message_filters
+from std_msgs.msg import Header
+from sensor_msgs.msg import Image
+from sensor_msgs.msg import CameraInfo
+from sensor_msgs import point_cloud2
+from sensor_msgs.msg import PointCloud2, PointField
+from visualization_msgs.msg import Marker
+from visualization_msgs.msg import MarkerArray
+from geometry_msgs.msg import Point
 
 
 class HelloWorldNode(hm.HelloNode):
@@ -140,7 +150,7 @@ class HelloWorldNode(hm.HelloNode):
 
     def move_arm_out_of_the_way(self):
         initial_pose = {'wrist_extension': 0.01,
-                        'joint_lift': 0.8,
+                        'joint_lift': 0.4,
                         'joint_wrist_yaw': 0.0}
 
         rospy.loginfo('Move arm out of the way of the camera.')
@@ -171,30 +181,55 @@ class HelloWorldNode(hm.HelloNode):
         self.pen_down()
         rospy.sleep(1)
         self.pen_up()
-                
+    
+
+
+    
     def trigger_write_hello_callback(self, request):
 
-        #self.move_arm_out_of_the_way()
-
+        # self.move_arm_out_of_the_way()
         self.move_to_initial_configuration()
-
         self.align_to_surface()
-        
-        
-        self.position_one()
-        self.space()
-        self.position_two()
 
+        if int(str(self.marker_id)[6:]) == 2:
+            rospy.loginfo("FUCKKKK")
+            self.position_one()
+            self.space()
+            self.position_two()            
+
+
+        
+
+        self.move_arm_out_of_the_way()
+        
         return TriggerResponse(
-            success=True,
-            message='Completed writing hello!'
-            )
+        success=True,
+        message='Completed writing hello!'
+        )
+        
+            
 
+
+    # def trigger_write_marker_callback(self):
+    #     trigger_request = TriggerRequest() 
+    #     trigger_result = self.trigger_write_marker_service(trigger_request)
+    #     rospy.loginfo('trigger_result = {0}'.format(trigger_result))
+    
+    # def trigger_write_id_callback(self, markerarray):
+    #     for marker in markerarray.markers:
+    #         rospy.loginfo("marker id: " + str(marker.id))
+    #         self.markerid = marker.id
     
     def main(self):
         hm.HelloNode.main(self, 'hello_world', 'hello_world', wait_for_first_pointcloud=False)
 
         self.joint_states_subscriber = rospy.Subscriber('/stretch/joint_states', JointState, self.joint_states_callback)
+        
+        rospy.loginfo("HIIIIIIIII")
+        #self.marker_array_subscriber = rospy.Subscriber('/aruco/id', MarkerArray, self.trigger_write_id_callback)
+        self.marker_id = rospy.wait_for_message('/aruco/num', Int16, timeout=100)
+        
+        rospy.loginfo("\n " + str(self.marker_id) + " \n")
         
         self.trigger_write_hello_service = rospy.Service('/hello_world/trigger_write_hello',
                                                          Trigger,
@@ -208,13 +243,18 @@ class HelloWorldNode(hm.HelloNode):
         rospy.loginfo('Node ' + self.node_name + ' connected to /funmap/trigger_reach_until_contact.')
         self.trigger_reach_until_contact_service = rospy.ServiceProxy('/funmap/trigger_reach_until_contact', Trigger)
 
-        # rospy.wait_for_service('/funmap/trigger_turn_off_contact_regulation')
-        # rospy.loginfo('Node ' + self.node_name + ' connected to /funmap/trigger_turn_off_contact_regulation.')
-        # self.trigger_turn_off_contact_regulation_service = rospy.ServiceProxy('/funmap/trigger_turn_off_contact_regulation', Trigger)
+        #rospy.wait_for_service('/funmap/trigger_turn_off_contact_regulation')
+        #rospy.loginfo('Node ' + self.node_name + ' connected to /funmap/trigger_turn_off_contact_regulation.')
+        #self.trigger_turn_off_contact_regulation_service = rospy.ServiceProxy('/funmap/trigger_turn_off_contact_regulation', Trigger)
 
         rate = rospy.Rate(self.rate)
         while not rospy.is_shutdown():
             rate.sleep()
+
+        # rospy.wait_for_service('/detect_button/marker_id')
+        # rospy.loginfo('Node ' + self.node_name + ' connected to /detect_button/marker_id.')
+        # self.trigger_write_marker_service = rospy.ServiceProxy('/detect_button/marker_id', Trigger)
+
 
         
 if __name__ == '__main__':

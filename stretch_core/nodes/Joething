@@ -22,7 +22,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 import tf
 from tf.transformations import quaternion_from_euler, euler_from_quaternion, quaternion_from_matrix
-
+from std_msgs.msg import Int16
 import struct
 import cv2.aruco as aruco
 import hello_helpers.fit_plane as fp
@@ -34,8 +34,7 @@ from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 import hello_helpers.hello_misc as hm
 
 import time
-class ArucoDetectionNode(hm.HelloNode):
-    id = 0
+class JoeNode(hm.HelloNode):
     def __init__(self):
         self.markerarray = None
         hm.HelloNode.__init__(self)
@@ -75,7 +74,9 @@ class ArucoDetectionNode(hm.HelloNode):
         for marker in markerarray.markers:
             #rospy.loginfo("marker id: " + str(marker.id))
             self.markerid = marker.id
-
+        self.marker_pub.publish(self.markerid)
+        
+        # self.marker_id_pub.publish(markerarray)
             # rospy.loginfo(marker.pose.position.x)
         # pose = {'translate_mobile_base': length_m}
         # self.move_to_pose(pose)
@@ -91,21 +92,23 @@ class ArucoDetectionNode(hm.HelloNode):
             )
 
     def main(self):  
-        rospy.init_node('ArucoDetectionNode')
+        rospy.init_node('JoeNode')
         self.node_name = rospy.get_name() 
         #s = rospy.Service('ArucoDetection', AddTwoInts, handle_add_two_ints)
         self.marker_array_subscriber = rospy.Subscriber('/aruco/marker_array', MarkerArray, self.trigger_write_marker_callback)
-        self.trigger_write_marker_service = rospy.Service('/detect_button/marker_id',
-                                                         Trigger,
-                                                         self.trigger_write_marker_service_callback)       
+        # self.marker_id_pub = rospy.Publisher('/aruco/id', MarkerArray, queue_size=1)
+        self.marker_pub = rospy.Publisher('/aruco/num', Int16, queue_size=1)
+        #self.trigger_write_marker_service = rospy.Service('/detect_button/marker_id',
+                                                        #  Trigger,
+                                                        #  self.trigger_write_marker_service_callback)       
         # self.point_cloud2_subscriber = rospy.Subscriber('/aruco/point_cloud2')
         # self.wrist_top_subscriber = rospy.Subscriber('/aruco/wrist_top')
         # self.wrist_inside_subscriber = rospy.Subscriber('/aruco/wrist_inside')
         self.tf_broadcaster = tf.TransformBroadcaster()
 
 if __name__ == '__main__':
-    node = ArucoDetectionNode()
-    time.sleep(20)
+    node = JoeNode()
+    time.sleep(25)
     node.main()
     try:
         rospy.spin()

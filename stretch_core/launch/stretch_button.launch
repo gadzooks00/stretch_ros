@@ -12,11 +12,11 @@
   <param name="/stretch_driver/fail_out_of_range_goal" type="bool" value="false"/>
   <include file="$(find stretch_core)/launch/stretch_driver.launch" pass_all_args="true"/>
   <!-- -->
-
+  
   <!-- KEYBOARD TELEOP -->
   <node name="keyboard_teleop" pkg="stretch_core" type="keyboard_teleop" output="screen"/>
   <!-- -->
-
+  
   <!-- VISUALIZE -->
   <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find stretch_core)/rviz/stretch_button.rviz"/>
   <!-- -->

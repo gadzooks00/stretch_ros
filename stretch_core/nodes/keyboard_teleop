@@ -24,6 +24,8 @@ class GetKeyboardCommands:
         self.grasp_object_on = grasp_object_on
         self.deliver_object_on = deliver_object_on
 
+        #self.SUCKMYFUCKINGCOCK = True || Testing routeing
+
         self.step_size = 'medium'
         # self.persistent_command_count = 0
         # self.prev_persistent_c = None
@@ -155,6 +157,10 @@ class GetKeyboardCommands:
         ####################################################
         ## OTHER CAPABILITIES
         ####################################################
+        # if (c == 'g') and self.SUCKMYFUCKINGCOCK:
+        #     trigger_request = TriggerRequest() 
+        #     trigger_result = node.trigger_write_marker_service(trigger_request)
+        #     rospy.loginfo('trigger_result = {0}'.format(trigger_result))
 
         # Trigger Hello World whiteboard writing demo
         if ((c == '`') or (c == '~')) and self.hello_world_on:
@@ -280,6 +286,8 @@ class KeyboardTeleopNode(hm.HelloNode):
         self.grasp_object_on = grasp_object_on
         self.deliver_object_on = deliver_object_on
 
+        # self.SUCKMYFUCKINGCOCK = True
+
     def joint_states_callback(self, joint_state):
         self.joint_state = joint_state
 
@@ -343,7 +351,12 @@ class KeyboardTeleopNode(hm.HelloNode):
             rospy.wait_for_service('/funmap/trigger_lower_until_contact')
             rospy.loginfo('Node ' + self.node_name + ' connected to /funmap/trigger_lower_until_contact.')
             self.trigger_lower_until_contact_service = rospy.ServiceProxy('/funmap/trigger_lower_until_contact', Trigger)
-
+       
+        # if self.SUCKMYFUCKINGCOCK:
+        #     rospy.wait_for_service('/detect_button/marker_id')
+        #     rospy.loginfo('Node ' + self.node_name + ' connected to /detect_button/marker_id.')
+        #     self.trigger_write_marker_service = rospy.ServiceProxy('/detect_button/marker_id', Trigger)
+            
         if self.hello_world_on: 
             rospy.wait_for_service('/hello_world/trigger_write_hello')
             rospy.loginfo('Node ' + self.node_name + ' connected to /hello_world/trigger_write_hello.')
